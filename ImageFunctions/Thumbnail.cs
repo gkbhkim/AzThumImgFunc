@@ -102,7 +102,7 @@ namespace ImageFunctions
                             image.Mutate(x => x.Resize(thumbnailWidth, height));
                             image.Save(output, encoder);
                             output.Position = 0;
-                            await blobContainerClient.UploadBlobAsync(blobName, output);
+                            await blobContainerClient.UploadBlobAsync("/" + thumbnailWidth.ToString() + "/" + blobName, output);
                         }
                     }
                     else
