@@ -92,7 +92,7 @@ namespace ImageFunctions
                         var blobContainerClient = blobServiceClient.GetBlobContainerClient(thumbContainerName);
                         var blobName = GetBlobNameFromUrl(createdEvent.Url);
                         Uri u = new Uri(createdEvent.Url.ToString());
-                        BlobClient bc = blobContainerClient.GetBlobClient(u.AbsolutePath.Replace(blobName, thumbnailWidth + "/" + blobName));
+                        BlobClient bc = blobContainerClient.GetBlobClient(u.AbsolutePath.Replace(blobName, thumbnailWidth + "/" + blobName).Replace("/" + u.AbsoluteUri.Split('/')[3], ""));
 
                         using (var output = new MemoryStream())
                         using (Image<Rgba32> image = Image.Load(input))
