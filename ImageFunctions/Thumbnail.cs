@@ -91,9 +91,7 @@ namespace ImageFunctions
                         var blobServiceClient = new BlobServiceClient(BLOB_STORAGE_CONNECTION_STRING);
                         var blobContainerClient = blobServiceClient.GetBlobContainerClient(thumbContainerName);
                         var blobName = GetBlobNameFromUrl(createdEvent.Url);
-                        blobName = thumbnailWidth.ToString() + "/" + blobName;
-                        log.LogInformation($"blobName : {blobName}");
-
+                        
                         using (var output = new MemoryStream())
                         using (Image<Rgba32> image = Image.Load(input))
                         {
@@ -103,6 +101,10 @@ namespace ImageFunctions
                             image.Mutate(x => x.Resize(thumbnailWidth, height));
                             image.Save(output, encoder);
                             output.Position = 0;
+
+                            log.LogInformation($"blobName : {blobName}");
+                            log.LogInformation("{data.url}");
+
                             await blobContainerClient.UploadBlobAsync(blobName, output);
                         }
                     }
