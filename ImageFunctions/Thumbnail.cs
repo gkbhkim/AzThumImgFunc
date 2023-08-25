@@ -103,7 +103,7 @@ namespace ImageFunctions
                             output.Position = 0;
 
                             log.LogInformation($"blobName : {blobName}");
-                            log.LogInformation("{data.url}");
+                            log.LogInformation(createdEvent.Url);
 
                             await blobContainerClient.UploadBlobAsync(blobName, output);
                         }
