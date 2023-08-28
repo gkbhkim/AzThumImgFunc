@@ -101,8 +101,37 @@ namespace ImageFunctions
                         BlobClient bc1 = blobContainerClient.GetBlobClient(sPath1);
                         BlobClient bc2 = blobContainerClient.GetBlobClient(sPath2);
 
-                        await saveImage(input, thumbnailWidth1, bc1, encoder);
-                        await saveImage(input, thumbnailWidth2, bc2, encoder);
+                        using (MemoryStream output = new MemoryStream())
+                        {
+                            using (Image<Rgba32> image = Image.Load(input))
+                            {
+                                var divisor = image.Width / thumbnailWidth1;
+                                var height = Convert.ToInt32(Math.Round((decimal)(image.Height / divisor)));
+
+                                image.Mutate(x => x.Resize(thumbnailWidth1, height));
+                                image.Save(output, encoder);
+                                output.Position = 0;
+
+                                //await blobContainerClient.UploadBlobAsync(blobName, output);
+                                await bc1.UploadAsync(output, true);
+                            }
+                        }
+
+                        using (MemoryStream output = new MemoryStream())
+                        {
+                            using (Image<Rgba32> image = Image.Load(input))
+                            {
+                                var divisor = image.Width / thumbnailWidth2;
+                                var height = Convert.ToInt32(Math.Round((decimal)(image.Height / divisor)));
+
+                                image.Mutate(x => x.Resize(thumbnailWidth2, height));
+                                image.Save(output, encoder);
+                                output.Position = 0;
+
+                                //await blobContainerClient.UploadBlobAsync(blobName, output);
+                                await bc2.UploadAsync(output, true);
+                            }
+                        }
                     }
                     else
                     {
