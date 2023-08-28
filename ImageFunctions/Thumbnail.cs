@@ -22,6 +22,7 @@ using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
 using System;
 using System.IO;
+using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
@@ -86,29 +87,22 @@ namespace ImageFunctions
 
                     if (encoder != null)
                     {
-                        var thumbnailWidth = Convert.ToInt32(Environment.GetEnvironmentVariable("THUMBNAIL_WIDTH"));
+                        var thumbnailWidth1 = Convert.ToInt32(Environment.GetEnvironmentVariable("THUMBNAIL_WIDTH1"));
+                        var thumbnailWidth2 = Convert.ToInt32(Environment.GetEnvironmentVariable("THUMBNAIL_WIDTH2"));
+
                         var thumbContainerName = Environment.GetEnvironmentVariable("THUMBNAIL_CONTAINER_NAME");
                         var blobServiceClient = new BlobServiceClient(BLOB_STORAGE_CONNECTION_STRING);
                         var blobContainerClient = blobServiceClient.GetBlobContainerClient(thumbContainerName);
                         var blobName = GetBlobNameFromUrl(createdEvent.Url);
                         Uri u = new Uri(createdEvent.Url.ToString());
-                        BlobClient bc = blobContainerClient.GetBlobClient(u.AbsolutePath.Replace(blobName, thumbnailWidth + "/" + blobName).Replace("/" + u.AbsoluteUri.Split('/')[3] + "/", ""));
+                        string suri = u.AbsolutePath;
+                        string sPath1 = suri.Replace("w" + blobName, thumbnailWidth1 + "/" + blobName).Replace("/" + u.AbsoluteUri.Split('/')[3] + "/", "");
+                        string sPath2 = suri.Replace("w" + blobName, thumbnailWidth2 + "/" + blobName).Replace("/" + u.AbsoluteUri.Split('/')[3] + "/", "");
+                        BlobClient bc1 = blobContainerClient.GetBlobClient(sPath1);
+                        BlobClient bc2 = blobContainerClient.GetBlobClient(sPath2);
 
-                        using (var output = new MemoryStream())
-                        using (Image<Rgba32> image = Image.Load(input))
-                        {
-                            var divisor = image.Width / thumbnailWidth;
-                            var height = Convert.ToInt32(Math.Round((decimal)(image.Height / divisor)));
-
-                            image.Mutate(x => x.Resize(thumbnailWidth, height));
-                            image.Save(output, encoder);
-                            output.Position = 0;
-
-                            log.LogInformation($"blobName : {blobName}");                            
-
-                            //await blobContainerClient.UploadBlobAsync(blobName, output);
-                            await bc.UploadAsync(output, true);
-                        }
+                        await saveImage(input, thumbnailWidth1, bc1, encoder);
+                        await saveImage(input, thumbnailWidth2, bc2, encoder);
                     }
                     else
                     {
@@ -121,6 +115,24 @@ namespace ImageFunctions
                 log.LogInformation(ex.Message);
                 throw;
             }
+        }
+
+        public static async Task saveImage(Stream input, int width, BlobClient bc, IImageEncoder encoder)
+        {
+            using (MemoryStream output = new MemoryStream())
+            using (Image<Rgba32> image = Image.Load(input))
+            {
+                var divisor = image.Width / width;
+                var height = Convert.ToInt32(Math.Round((decimal)(image.Height / divisor)));
+
+                image.Mutate(x => x.Resize(width, height));
+                image.Save(output, encoder);
+                output.Position = 0;
+
+                //await blobContainerClient.UploadBlobAsync(blobName, output);
+                await bc.UploadAsync(output, true);
+            }
+
         }
     }
 }
