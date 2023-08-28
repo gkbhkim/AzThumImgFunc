@@ -105,10 +105,10 @@ namespace ImageFunctions
                         {
                             using (Image<Rgba32> image = Image.Load(input))
                             {
-                                var divisor = image.Width / thumbnailWidth1;
-                                var height = Convert.ToInt32(Math.Round((decimal)(image.Height / divisor)));
+                                var divisor1 = image.Width / thumbnailWidth1;
+                                var height1 = Convert.ToInt32(Math.Round((decimal)(image.Height / divisor1)));
 
-                                image.Mutate(x => x.Resize(thumbnailWidth1, height));
+                                image.Mutate(x => x.Resize(thumbnailWidth1, height1));
                                 image.Save(output, encoder);
                                 output.Position = 0;
 
@@ -117,21 +117,21 @@ namespace ImageFunctions
                             }
                         }
 
-                        using (MemoryStream output = new MemoryStream())
-                        {
-                            using (Image<Rgba32> image = Image.Load(input))
-                            {
-                                var divisor = image.Width / thumbnailWidth2;
-                                var height = Convert.ToInt32(Math.Round((decimal)(image.Height / divisor)));
+                        //using (MemoryStream output = new MemoryStream())
+                        //{
+                        //    using (Image<Rgba32> image = Image.Load(input))
+                        //    {
+                        //        var divisor = image.Width / thumbnailWidth2;
+                        //        var height = Convert.ToInt32(Math.Round((decimal)(image.Height / divisor)));
 
-                                image.Mutate(x => x.Resize(thumbnailWidth2, height));
-                                image.Save(output, encoder);
-                                output.Position = 0;
+                        //        image.Mutate(x => x.Resize(thumbnailWidth2, height));
+                        //        image.Save(output, encoder);
+                        //        output.Position = 0;
 
-                                //await blobContainerClient.UploadBlobAsync(blobName, output);
-                                await bc2.UploadAsync(output, true);
-                            }
-                        }
+                        //        //await blobContainerClient.UploadBlobAsync(blobName, output);
+                        //        await bc2.UploadAsync(output, true);
+                        //    }
+                        //}
                     }
                     else
                     {
