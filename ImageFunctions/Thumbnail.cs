@@ -109,37 +109,37 @@ namespace ImageFunctions
                         BlobClient bc1 = blobContainerClient.GetBlobClient(sPath1);
                         BlobClient bc2 = blobContainerClient.GetBlobClient(sPath2);
 
-                        using (MemoryStream output = new MemoryStream())
+                        using (MemoryStream output1 = new MemoryStream())
                         {
-                            using (Image<Rgba32> image = Image.Load(input))
+                            using (Image<Rgba32> image1 = Image.Load(input))
                             {
-                                var divisor1 = image.Width / thumbnailWidth1;
-                                var height1 = Convert.ToInt32(Math.Round((decimal)(image.Height / divisor1)));
+                                var divisor1 = image1.Width / thumbnailWidth1;
+                                var height1 = Convert.ToInt32(Math.Round((decimal)(image1.Height / divisor1)));
 
-                                image.Mutate(x => x.Resize(thumbnailWidth1, height1));
-                                image.Save(output, encoder);
-                                output.Position = 0;
+                                image1.Mutate(x => x.Resize(thumbnailWidth1, height1));
+                                image1.Save(output1, encoder);
+                                output1.Position = 0;
 
                                 //await blobContainerClient.UploadBlobAsync(blobName, output);
-                                await bc1.UploadAsync(output, true);
+                                await bc1.UploadAsync(output1, true);
                             }
                         }
 
-                        //using (MemoryStream output = new MemoryStream())
-                        //{
-                        //    using (Image<Rgba32> image = Image.Load(input))
-                        //    {
-                        //        var divisor = image.Width / thumbnailWidth2;
-                        //        var height = Convert.ToInt32(Math.Round((decimal)(image.Height / divisor)));
+                        using (MemoryStream output2 = new MemoryStream())
+                        {
+                            using (Image<Rgba32> image2 = Image.Load(input))
+                            {
+                                var divisor = image2.Width / thumbnailWidth2;
+                                var height = Convert.ToInt32(Math.Round((decimal)(image2.Height / divisor)));
 
-                        //        image.Mutate(x => x.Resize(thumbnailWidth2, height));
-                        //        image.Save(output, encoder);
-                        //        output.Position = 0;
+                                image2.Mutate(x => x.Resize(thumbnailWidth2, height));
+                                image2.Save(output2, encoder);
+                                output2.Position = 0;
 
-                        //        //await blobContainerClient.UploadBlobAsync(blobName, output);
-                        //        await bc2.UploadAsync(output, true);
-                        //    }
-                        //}
+                                //await blobContainerClient.UploadBlobAsync(blobName, output);
+                                await bc2.UploadAsync(output2, true);
+                            }
+                        }
                     }
                     else
                     {
