@@ -109,10 +109,12 @@ namespace ImageFunctions
                         BlobClient bc1 = blobContainerClient.GetBlobClient(sPath1);
                         BlobClient bc2 = blobContainerClient.GetBlobClient(sPath2);
 
+                        Image<Rgba32> image2;
                         using (MemoryStream output1 = new MemoryStream())
                         {
                             using (Image<Rgba32> image1 = Image.Load(input))
                             {
+                                image2 = image1.Clone();
                                 var divisor1 = image1.Width / thumbnailWidth1;
                                 var height1 = Convert.ToInt32(Math.Round((decimal)(image1.Height / divisor1)));
 
@@ -125,9 +127,9 @@ namespace ImageFunctions
                             }
                         }
 
-                        using (MemoryStream output2 = new MemoryStream())
+                        if (image2 != null)
                         {
-                            using (Image<Rgba32> image2 = Image.Load(input))
+                            using (MemoryStream output2 = new MemoryStream())
                             {
                                 var divisor = image2.Width / thumbnailWidth2;
                                 var height = Convert.ToInt32(Math.Round((decimal)(image2.Height / divisor)));
