@@ -96,8 +96,8 @@ namespace ImageFunctions
                         var blobName = GetBlobNameFromUrl(createdEvent.Url);
                         Uri u = new Uri(createdEvent.Url.ToString());
                         string suri = u.AbsolutePath;
-                        string sPath1 = suri.Replace("w" + blobName, thumbnailWidth1 + "/" + blobName).Replace("/" + u.AbsoluteUri.Split('/')[3] + "/", "");
-                        string sPath2 = suri.Replace("w" + blobName, thumbnailWidth2 + "/" + blobName).Replace("/" + u.AbsoluteUri.Split('/')[3] + "/", "");
+                        string sPath1 = suri.Replace(blobName, "w" + thumbnailWidth1 + "/" + blobName).Replace("/" + u.AbsoluteUri.Split('/')[3] + "/", "");
+                        string sPath2 = suri.Replace(blobName, "w" + thumbnailWidth2 + "/" + blobName).Replace("/" + u.AbsoluteUri.Split('/')[3] + "/", "");
                         BlobClient bc1 = blobContainerClient.GetBlobClient(sPath1);
                         BlobClient bc2 = blobContainerClient.GetBlobClient(sPath2);
 
