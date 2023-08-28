@@ -98,6 +98,12 @@ namespace ImageFunctions
                         string suri = u.AbsolutePath;
                         string sPath1 = suri.Replace(blobName + "/", "w" + thumbnailWidth1 + "/" + blobName + "/").Replace("/" + u.AbsoluteUri.Split('/')[3] + "/", "");
                         string sPath2 = suri.Replace(blobName + "/", "w" + thumbnailWidth2 + "/" + blobName + "/").Replace("/" + u.AbsoluteUri.Split('/')[3] + "/", "");
+
+                        log.LogInformation($"sPath1 : {sPath1}");
+                        log.LogInformation($"sPath2 : {sPath2}");
+                        log.LogInformation($"THUMBNAIL_WIDTH1 : {thumbnailWidth1}");
+                        log.LogInformation($"THUMBNAIL_WIDTH2 : {thumbnailWidth2}");
+
                         BlobClient bc1 = blobContainerClient.GetBlobClient(sPath1);
                         BlobClient bc2 = blobContainerClient.GetBlobClient(sPath2);
 
