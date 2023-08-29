@@ -117,15 +117,26 @@ namespace ImageFunctions
                             using (Image<Rgba32> image1 = Image.Load(input))
                             {
                                 image2 = image1.Clone();
-                                var divisor1 = image1.Width / thumbnailWidth1;
-                                var height1 = Convert.ToInt32(Math.Round((decimal)(image1.Height / divisor1)));
+                                try
+                                {
+                                    
+                                    var divisor1 = image1.Width / thumbnailWidth1;
+                                    var height1 = Convert.ToInt32(Math.Round((decimal)(image1.Height / divisor1)));
 
-                                image1.Mutate(x => x.Resize(thumbnailWidth1, height1));
-                                image1.Save(output1, encoder);
-                                output1.Position = 0;
+                                    image1.Mutate(x => x.Resize(thumbnailWidth1, height1));
+                                    image1.Save(output1, encoder);
+                                    output1.Position = 0;
+                                    await bc1.UploadAsync(output1, true);
+                                }
+                                catch(DivideByZeroException zex)
+                                {
+                                    log.LogInformation($"DivideByZeroException for: {zex}");
+                                    
+                                    image1.Save(output1, encoder);
+                                    output1.Position = 0;
 
-                                //await blobContainerClient.UploadBlobAsync(blobName, output);
-                                await bc1.UploadAsync(output1, true);
+                                    await bc1.UploadAsync(output1, true);
+                                }
                             }
                         }
 
@@ -133,15 +144,24 @@ namespace ImageFunctions
                         {
                             using (MemoryStream output2 = new MemoryStream())
                             {
-                                var divisor = image2.Width / thumbnailWidth2;
-                                var height = Convert.ToInt32(Math.Round((decimal)(image2.Height / divisor)));
+                                try
+                                {
+                                    var divisor = image2.Width / thumbnailWidth2;
+                                    var height = Convert.ToInt32(Math.Round((decimal)(image2.Height / divisor)));
 
-                                image2.Mutate(x => x.Resize(thumbnailWidth2, height));
-                                image2.Save(output2, encoder);
-                                output2.Position = 0;
+                                    image2.Mutate(x => x.Resize(thumbnailWidth2, height));
+                                    image2.Save(output2, encoder);
+                                    output2.Position = 0;
 
-                                //await blobContainerClient.UploadBlobAsync(blobName, output);
-                                await bc2.UploadAsync(output2, true);
+                                    //await blobContainerClient.UploadBlobAsync(blobName, output);
+                                    await bc2.UploadAsync(output2, true);
+                                }catch(DivideByZeroException zex) {
+                                    log.LogInformation($"DivideByZeroException for: {zex}");
+                                    image2.Save(output2, encoder);
+                                    output2.Position = 0;
+
+                                    await bc1.UploadAsync(output2, true);
+                                }
                             }
                         }
                     }
