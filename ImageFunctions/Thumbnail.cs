@@ -120,7 +120,7 @@ namespace ImageFunctions
                                 try
                                 {
                                     
-                                    var divisor1 = image1.Width / thumbnailWidth1;
+                                    var divisor1 = (decimal)image1.Width / (decimal)thumbnailWidth1;
                                     var height1 = Convert.ToInt32(Math.Round((decimal)(image1.Height / divisor1)));
 
                                     image1.Mutate(x => x.Resize(thumbnailWidth1, height1));
@@ -146,7 +146,7 @@ namespace ImageFunctions
                             {
                                 try
                                 {
-                                    var divisor = image2.Width / thumbnailWidth2;
+                                    var divisor = (decimal)image2.Width / (decimal)thumbnailWidth2;
                                     var height = Convert.ToInt32(Math.Round((decimal)(image2.Height / divisor)));
 
                                     image2.Mutate(x => x.Resize(thumbnailWidth2, height));
