@@ -87,8 +87,7 @@ namespace ImageFunctions
 
                     if (encoder != null)
                     {
-                        var thumbnailWidth1 = Convert.ToInt32(Environment.GetEnvironmentVariable("THUMBNAIL_WIDTH1"));
-                        var thumbnailWidth2 = Convert.ToInt32(Environment.GetEnvironmentVariable("THUMBNAIL_WIDTH2"));
+                        var thumbnailWidth = Convert.ToInt32(Environment.GetEnvironmentVariable("THUMBNAIL_WIDTH"));
 
                         var thumbContainerName = Environment.GetEnvironmentVariable("THUMBNAIL_CONTAINER_NAME");
                         var blobServiceClient = new BlobServiceClient(BLOB_STORAGE_CONNECTION_STRING);
@@ -100,67 +99,37 @@ namespace ImageFunctions
                         log.LogInformation($"AbsolutePath : {suri}");
 
                         string filename = blobName.Split('/')[blobName.Split('/').Length - 1];
-                        string sPath1 = suri.Replace(filename, "w" + thumbnailWidth1 + "/" + filename).Replace("/" + u.AbsoluteUri.Split('/')[3] + "/", "");
-                        string sPath2 = suri.Replace(filename, "w" + thumbnailWidth2 + "/" + filename).Replace("/" + u.AbsoluteUri.Split('/')[3] + "/", "");
+                        string sPath = suri.Replace(filename, "w" + thumbnailWidth + "/" + filename).Replace("/" + u.AbsoluteUri.Split('/')[3] + "/", "");
+                        log.LogInformation($"sPath1 : {sPath}");
+                        log.LogInformation($"THUMBNAIL_WIDTH1 : {thumbnailWidth}");
 
-                        log.LogInformation($"sPath1 : {sPath1}");
-                        log.LogInformation($"sPath2 : {sPath2}");
-                        log.LogInformation($"THUMBNAIL_WIDTH1 : {thumbnailWidth1}");
-                        log.LogInformation($"THUMBNAIL_WIDTH2 : {thumbnailWidth2}");
-
-                        BlobClient bc1 = blobContainerClient.GetBlobClient(sPath1);
-                        BlobClient bc2 = blobContainerClient.GetBlobClient(sPath2);
+                        BlobClient bc = blobContainerClient.GetBlobClient(sPath);
 
                         Image<Rgba32> image2;
-                        using (MemoryStream output1 = new MemoryStream())
+                        using (MemoryStream output= new MemoryStream())
                         {
-                            using (Image<Rgba32> image1 = Image.Load(input))
+                            using (Image<Rgba32> image = Image.Load(input))
                             {
-                                image2 = image1.Clone();
+                                image2 = image.Clone();
                                 try
                                 {
                                     
-                                    var divisor1 = (decimal)image1.Width / (decimal)thumbnailWidth1;
-                                    var height1 = Convert.ToInt32(Math.Round((decimal)(image1.Height / divisor1)));
+                                    var divisor = (decimal)image.Width / (decimal)thumbnailWidth;
+                                    var height = Convert.ToInt32(Math.Round((decimal)(image.Height / divisor)));
 
-                                    image1.Mutate(x => x.Resize(thumbnailWidth1, height1));
-                                    image1.Save(output1, encoder);
-                                    output1.Position = 0;
-                                    await bc1.UploadAsync(output1, true);
+                                    image.Mutate(x => x.Resize(thumbnailWidth, height));
+                                    image.Save(output, encoder);
+                                    output.Position = 0;
+                                    await bc.UploadAsync(output, true);
                                 }
                                 catch(DivideByZeroException zex)
                                 {
                                     log.LogInformation($"DivideByZeroException for: {zex}");
                                     
-                                    image1.Save(output1, encoder);
-                                    output1.Position = 0;
+                                    image.Save(output, encoder);
+                                    output.Position = 0;
 
-                                    await bc1.UploadAsync(output1, true);
-                                }
-                            }
-                        }
-
-                        if (image2 != null)
-                        {
-                            using (MemoryStream output2 = new MemoryStream())
-                            {
-                                try
-                                {
-                                    var divisor = (decimal)image2.Width / (decimal)thumbnailWidth2;
-                                    var height = Convert.ToInt32(Math.Round((decimal)(image2.Height / divisor)));
-
-                                    image2.Mutate(x => x.Resize(thumbnailWidth2, height));
-                                    image2.Save(output2, encoder);
-                                    output2.Position = 0;
-
-                                    //await blobContainerClient.UploadBlobAsync(blobName, output);
-                                    await bc2.UploadAsync(output2, true);
-                                }catch(DivideByZeroException zex) {
-                                    log.LogInformation($"DivideByZeroException for: {zex}");
-                                    image2.Save(output2, encoder);
-                                    output2.Position = 0;
-
-                                    await bc1.UploadAsync(output2, true);
+                                    await bc.UploadAsync(output, true);
                                 }
                             }
                         }
