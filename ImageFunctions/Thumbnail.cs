@@ -100,27 +100,36 @@ namespace ImageFunctions
 
                         string filename = blobName.Split('/')[blobName.Split('/').Length - 1];
                         string sPath = suri.Replace(filename, "w" + thumbnailWidth + "/" + filename).Replace("/" + u.AbsoluteUri.Split('/')[3] + "/", "");
-                        log.LogInformation($"sPath1 : {sPath}");
-                        log.LogInformation($"THUMBNAIL_WIDTH1 : {thumbnailWidth}");
+                        log.LogInformation($"sPath : {sPath}");
+                        log.LogInformation($"THUMBNAIL_WIDTH : {thumbnailWidth}");
 
                         BlobClient bc = blobContainerClient.GetBlobClient(sPath);
 
-                        Image<Rgba32> image2;
+                        //Image<Rgba32> image2;
                         using (MemoryStream output= new MemoryStream())
                         {
                             using (Image<Rgba32> image = Image.Load(input))
-                            {
-                                image2 = image.Clone();
+                            {  
+                                //image2 = image.Clone();
                                 try
                                 {
-                                    
-                                    var divisor = (decimal)image.Width / (decimal)thumbnailWidth;
-                                    var height = Convert.ToInt32(Math.Round((decimal)(image.Height / divisor)));
+                                    image.Mutate(x => x.AutoOrient());
 
-                                    image.Mutate(x => x.Resize(thumbnailWidth, height));
-                                    image.Save(output, encoder);
-                                    output.Position = 0;
-                                    await bc.UploadAsync(output, true);
+                                    if (image.Width > thumbnailWidth)
+                                    {
+                                        var divisor = (decimal)image.Width / (decimal)thumbnailWidth;
+                                        var height = Convert.ToInt32(Math.Round((decimal)(image.Height / divisor)));
+
+                                        image.Mutate(x => x.AutoOrient().Resize(thumbnailWidth, height));
+                                        image.Save(output, encoder);
+                                        output.Position = 0;
+                                        await bc.UploadAsync(output, true);
+                                    }
+                                    else //가로 크기가 썸내일보다 작으면 원본 업로드
+                                    {
+                                        output.Position = 0;
+                                        await bc.UploadAsync(output, true);
+                                    }
                                 }
                                 catch(DivideByZeroException zex)
                                 {
