@@ -13,6 +13,7 @@ using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.EventGrid;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
+
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Formats;
 using SixLabors.ImageSharp.Formats.Gif;
@@ -22,14 +23,14 @@ using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
 using System;
 using System.IO;
-using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+
 
 namespace ImageFunctions
 {
     public static class Thumbnail
-    {
+    {        
         private static readonly string BLOB_STORAGE_CONNECTION_STRING = Environment.GetEnvironmentVariable("AzureWebJobsStorage");
 
         private static string GetBlobNameFromUrl(string bloblUrl)
@@ -108,7 +109,7 @@ namespace ImageFunctions
                         //Image<Rgba32> image2;
                         using (MemoryStream output= new MemoryStream())
                         {
-                            using (Image<Rgba32> image = Image.Load(input))
+                            using (Image image = Image.Load(input))
                             {  
                                 //image2 = image.Clone();
                                 try
@@ -160,7 +161,7 @@ namespace ImageFunctions
         public static async Task saveImage(Stream input, int width, BlobClient bc, IImageEncoder encoder)
         {
             using (MemoryStream output = new MemoryStream())
-            using (Image<Rgba32> image = Image.Load(input))
+            using (Image image = Image.Load(input))
             {
                 var divisor = image.Width / width;
                 var height = Convert.ToInt32(Math.Round((decimal)(image.Height / divisor)));
