@@ -127,6 +127,7 @@ namespace ImageFunctions
                                     }
                                     else //가로 크기가 썸내일보다 작으면 원본 업로드
                                     {
+                                        image.Save(output, encoder);
                                         output.Position = 0;
                                         await bc.UploadAsync(output, true);
                                     }
